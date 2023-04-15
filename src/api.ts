@@ -1,6 +1,7 @@
-import { createAlova } from 'alova';
+import { createAlova, ResponsedHandlerRecord } from 'alova';
 import VueHook from 'alova/vue';
 import GlobalFetch from 'alova/GlobalFetch';
+
 export const alovaInst = createAlova({
     baseURL: 'http://192.168.56.111:9001/study_station/admin',
     // http://120.26.95.95:8607/blues-admin/auth/getWebSiteName 可以用这个接口测 但是这个接口没有做跨域 所以使用beforeRequest会报错
@@ -8,9 +9,7 @@ export const alovaInst = createAlova({
     requestAdapter: GlobalFetch(),
     beforeRequest(method){
         //请求拦截器
-        const token = localStorage.getItem("X-Token") || ''
-
-        method.config.headers['X-Token'] = token;
+        method.config.headers['X-Token'] = localStorage.getItem("X-Token") || '';
     },
     timeout: 50000,
     responded: {
@@ -36,4 +35,21 @@ export const alovaInst = createAlova({
     }
 });
 
+
+function get(url: string, params?: any, config = {}) {
+    return alovaInst.Get(url, {
+        params,
+        ...config
+    })
+}
+
+function post(url: string, data?: any, config = {}) {
+    return alovaInst.Post(url, data, config)
+}
+
+
+export {
+    get,
+    post
+}
 
