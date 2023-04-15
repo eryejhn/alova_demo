@@ -1,57 +1,63 @@
 <template>
   <div>teacher
-    <p @click="submit('account')">1234566</p>
-    <p @click="pwdreset1('account')">{{ data.name }}</p>
+    <p @click="toSubmit('account')">1234566</p>
+    <p @click="resetPwd('account')">{{ userInfo.name }}</p>
   </div>
 </template>
 
 <script>
-import {ref} from 'vue';
-import {getData, login,pwdreset0} from '@/api/user.ts';
-import {useRequest} from 'alova';
+import { ref } from 'vue';
+import useUser from "@/composables/useUser.js";
 
 export default {
   name: "Teacher",
   setup() {
     const account = ref('')
     const password = ref('123456')
-   //官方写法 这样好像一个vue里只能写一个请求
-    const {data, loading, error, onSuccess} = useRequest(getData, {
-      initialData: [],
-    });
-    onSuccess((res) => {
-      console.log(res.data)
+
+    // TODO 得调试一下，知道逻辑同不同
+    const user = useUser();
+
+    const { userInfo, getUserInfoSucceed } = user.getUserInfo();
+
+    const { toLogin, loginSucceed } = user.login();
+
+    const { toResetPassword, resetPasswordSucceed } = user.resetPassword();
+
+    getUserInfoSucceed((res) => {
+      console.log(res)
     });
 
-    //我自己发现的 支持setup里写多个请求
-    const submit = (account1) => {
-      if (!account1) {
+    const toSubmit = (_account) => {
+      if (!_account) {
         alert('Please input a account');
         return;
       }
-      account.value = account1
-      response.send();
-      response.onSuccess(res=> {
-        console.log(res.data)
-        let token = res.data.token
-        localStorage.setItem("X-Token",token)
-      })
+      account.value = _account;
+      toLogin(account.value, password.value);
+      loginSucceed((res) => {
+        localStorage.setItem("X-Token", res.data.token);
+      });
     };
-    const pwdreset1 = (accountNo) =>{
-      account.value = accountNo
-      resp.send()
-      resp.onSuccess(res=> {
-        console.log(res.data)
-      })
-    }
-    const resp = useRequest(() => pwdreset0(account.value), {
-      immediate: false,
-    });
-    const response = useRequest(() => login(account.value,password.value), {
-      immediate: false,
-    });
 
-    return {data, submit,pwdreset1}
+    const resetPwd = (_account) => {
+      if (!_account) {
+        alert('Please input a account');
+        return;
+      }
+      account.value = _account;
+      toResetPassword(account.value);
+      resetPasswordSucceed((res) => {
+        console.log(res)
+      });
+    };
+
+
+    return {
+      userInfo,
+      toSubmit,
+      resetPwd
+    }
   }
 }
 </script>

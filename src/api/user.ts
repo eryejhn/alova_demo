@@ -1,4 +1,8 @@
-import { alovaInst } from '../api';
-export const getData = () => alovaInst.Get('/index/info');
-export const login = (account,password) => alovaInst.Post('/index/login',{account,password});
-export const pwdreset0 = (accountNo) => alovaInst.Post(`/user/pwdreset/${accountNo}`);
+import { get, post } from '@/api';
+
+
+export const userApi = {
+  getData: () => get('/index/info'),
+  login: (account: string, password: string) => post('/index/login',{account,password}),
+  pwdreset0: (accountNo: string) => post(`/user/pwdreset/${accountNo}`),
+}
